@@ -15,31 +15,6 @@ The pipeline performs the following:
 
 The system is implemented using **n8n workflow automation** and runs locally using **Docker**, ensuring a completely **zero-cost architecture**.
 
-Demo Call (Fireflies Transcript)
-            │
-            ▼
-     Extract Account Data
-            │
-            ▼
-        Memo v1
-            │
-            ▼
-     Agent Spec v1
-            │
-            ▼
-     Onboarding Call
-            │
-            ▼
-        Memo v2
-            │
-            ▼
-     Agent Spec v2
-            │
-            ▼
-        Changelog
-
----
-
 # System Architecture
 
 Demo Call Transcript  
