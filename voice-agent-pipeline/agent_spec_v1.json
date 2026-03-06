@@ -1,0 +1,9 @@
+[
+  {
+    "agent_name": "undefined Voice Agent",
+    "routing": {
+      "emergency": "dispatch",
+      "non_emergency": "office"
+    }
+  }
+]

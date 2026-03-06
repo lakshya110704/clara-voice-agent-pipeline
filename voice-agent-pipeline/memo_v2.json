@@ -1,0 +1,12 @@
+{
+  "company_name": "Ben's Electric",
+  "services_supported": [
+    "sprinkler services",
+    "fire alarm services"
+  ],
+  "emergency_definition": [
+    "caller reports emergency"
+  ],
+  "after_hours_routing": "voicemail",
+  "office_address": "450 Market Street"
+}

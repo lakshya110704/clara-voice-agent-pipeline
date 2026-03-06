@@ -1,0 +1,15 @@
+[
+  {
+    "agent_name": "Ben's Electric Voice Agent",
+    "company": "Ben's Electric",
+    "services_supported": [
+      "sprinkler services",
+      "fire alarm services"
+    ],
+    "routing": {
+      "emergency": "dispatch",
+      "after_hours": "voicemail"
+    },
+    "office_address": "450 Market Street"
+  }
+]

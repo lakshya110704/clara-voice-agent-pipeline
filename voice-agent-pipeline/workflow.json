@@ -1,0 +1,349 @@
+{
+  "name": "Demo Call → Agent v1 Pipeline",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "03b35cee-6873-49b5-9f8e-51fc5c562f9a",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1df34e08-d093-4ef7-b817-564caf162e54",
+              "name": "transcript",
+              "value": "=Hello this is Ben from Ben's Electric. We handle sprinkler systems and fire alarm inspections. Emergency calls like sprinkler leaks should go to dispatch.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        624,
+        0
+      ],
+      "id": "df133011-f6ec-450e-a1d1-8df33a77616c",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "operation": "toJson",
+        "options": {
+          "fileName": " memo_v1.json"
+        }
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        1056,
+        0
+      ],
+      "id": "a108886b-5497-48a9-bada-84c6186cfae8",
+      "name": "Convert to File"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b417b3c0-1e7b-42f3-a27c-c04f633dae0e",
+              "name": "onboarding_transcript",
+              "value": "Hi, this is Ben from Ben's Electric again. We want the AI agent to send non-emergency calls to voicemail after 6pm. Emergency calls should still go directly to dispatch. Also our office address is 450 Market Street.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        416,
+        192
+      ],
+      "id": "e0dd4594-db07-464e-9f0f-e2b1f620b3f2",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const transcript = $json.onboarding_transcript;\n\nreturn [\n{\njson: {\ncompany_name: \"Ben's Electric\",\nservices_supported: [\n\"sprinkler services\",\n\"fire alarm inspections\"\n],\nemergency_definition: \"sprinkler leaks or urgent service calls\",\n\noffice_address: \"450 Market Street\",\nafter_hours_routing: \"voicemail\",\n\nnotes: transcript,\nversion: \"v2\"\n}\n}\n];\n\nreturn [{ json: memo_v2 }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        624,
+        192
+      ],
+      "id": "3452dcaa-51a0-4b6a-af7a-c6cad620af93",
+      "name": "Update Memo v2"
+    },
+    {
+      "parameters": {
+        "jsCode": "const memo = $node[\"Update Memo v2\"].json;\n\nconst services = memo.services_supported || [];\nconst after_hours = memo.after_hours_routing || \"voicemail\";\n\nreturn [\n{\njson: {\nagent_name: memo.company_name + \" Voice Agent\",\ncompany: memo.company_name,\n\nvoice_style: \"friendly and professional\",\n\nsystem_prompt: `\nYou are a voice assistant for ${memo.company_name}.\n\nServices supported:\n${services.join(\", \")}\n\nDuring business hours route calls normally.\n\nAfter hours:\n- if emergency transfer to dispatch\n- otherwise send to ${after_hours}\n`,\n\nrouting: {\nemergency: \"dispatch\",\nnon_emergency: \"office\",\nafter_hours: after_hours\n},\n\nversion: \"v2\"\n}\n}\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1056,
+        192
+      ],
+      "id": "abdf06d0-7480-4a34-b605-5eb9f39c6775",
+      "name": "Generate Agent Spec v2"
+    },
+    {
+      "parameters": {
+        "jsCode": "const spec = $input.first().json;\n\nconst changes = [];\n\nif (spec.routing) {\n  changes.push(\"Configured routing rules\");\n}\n\nif (spec.voice_style) {\n  changes.push(\"Defined voice assistant style\");\n}\n\nchanges.push(\"Generated updated agent configuration\");\n\nreturn [\n  {\n    json: {\n      version: \"v2\",\n      agent_name: spec.agent_name,\n      changes\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1264,
+        112
+      ],
+      "id": "9cfa1faa-ca8e-4d6b-b290-057ebe15b9f3",
+      "name": "Generate Changelog"
+    },
+    {
+      "parameters": {
+        "operation": "toJson",
+        "options": {
+          "fileName": "agent_spec_v1.json"
+        }
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        208,
+        192
+      ],
+      "id": "3795993c-3720-4409-933e-590eadf88f03",
+      "name": "Convert to File1"
+    },
+    {
+      "parameters": {
+        "operation": "toJson",
+        "options": {
+          "fileName": "memo_v2.json"
+        }
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        816,
+        192
+      ],
+      "id": "0d4c27c0-51d1-4959-94a3-a83785523696",
+      "name": "Convert to File2"
+    },
+    {
+      "parameters": {
+        "fileSelector": "/home/node/.n8n-files/dataset/*.txt",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1.1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "5a583b3e-d9bd-4924-9f89-5a639caa4d24",
+      "name": "Read/Write Files from Disk"
+    },
+    {
+      "parameters": {
+        "jsCode": "const file = $input.first().binary.data;\nconst transcript = Buffer.from(file.data, 'base64').toString();\n\nreturn [\n  {\n    json: {\n      transcript: transcript\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        416,
+        0
+      ],
+      "id": "86760fb2-92f2-4df1-8660-b4f672aa2ff3",
+      "name": "Extract Account Data"
+    },
+    {
+      "parameters": {
+        "jsCode": "const transcript = $json.transcript.toLowerCase();\n\nlet company_name = \"Unknown Company\";\nlet services_supported = [];\nlet emergency_definition = \"urgent service issues\";\n\nif (transcript.includes(\"ben\")) {\n  company_name = \"Ben's Electric\";\n}\n\nif (transcript.includes(\"sprinkler\")) {\n  services_supported.push(\"sprinkler services\");\n}\n\nif (transcript.includes(\"fire alarm\")) {\n  services_supported.push(\"fire alarm inspections\");\n}\n\nif (services_supported.length === 0) {\n  services_supported.push(\"general electrical services\");\n}\n\nreturn [\n{\njson: {\ncompany_name: company_name,\nservices_supported: services_supported,\nemergency_definition: emergency_definition,\nnotes: transcript\n}\n}\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        816,
+        0
+      ],
+      "id": "6dcd038b-e9ee-4d88-b32e-666637d096dc",
+      "name": "Generate Account Memo v1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const memo = $node[\"Generate Account Memo v1\"].json;\n\nconst services = memo.services_supported || [];\n\nreturn [\n{\njson: {\nagent_name: memo.company_name + \" Voice Agent\",\ncompany: memo.company_name,\n\nvoice_style: \"friendly and professional\",\n\nsystem_prompt: `\nYou are a voice assistant for ${memo.company_name}.\n\nServices supported:\n${services.join(\", \")}\n\nIf the caller reports an emergency, transfer to dispatch.\nOtherwise route the call appropriately.\n`,\n\nrouting: {\nemergency: \"dispatch\",\nnon_emergency: \"office\",\nafter_hours: \"voicemail\"\n},\n\nversion: \"v1\"\n}\n}\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        0,
+        192
+      ],
+      "id": "c5e4bb53-0b8f-4c2f-b0e9-0cddb0aff0c1",
+      "name": "Generate Retell Agent Spec v1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Read/Write Files from Disk",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Generate Account Memo v1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to File": {
+      "main": [
+        [
+          {
+            "node": "Generate Retell Agent Spec v1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Update Memo v2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Memo v2": {
+      "main": [
+        [
+          {
+            "node": "Convert to File2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Agent Spec v2": {
+      "main": [
+        [
+          {
+            "node": "Generate Changelog",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to File1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to File2": {
+      "main": [
+        [
+          {
+            "node": "Generate Agent Spec v2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read/Write Files from Disk": {
+      "main": [
+        [
+          {
+            "node": "Extract Account Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Account Data": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Account Memo v1": {
+      "main": [
+        [
+          {
+            "node": "Convert to File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Retell Agent Spec v1": {
+      "main": [
+        [
+          {
+            "node": "Convert to File1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "98d57684-1ef4-43dd-82b0-05acad10c883",
+  "meta": {
+    "instanceId": "b51b231143de374f91cdb8fb5e35c0dfb04daa8427a35c415d2f0210d4491efe"
+  },
+  "id": "pZ76NB3kimDUrR82",
+  "tags": []
+}
